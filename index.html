@@ -157,7 +157,7 @@ function resumeOf(raw){ const e = envelope(raw); return raw?._resume || e?._resu
 function proxied(u){ try { const x = new URL(u); return `${BASE}${x.pathname}${x.search}`; } catch { return u; } }
 
 async function poll(id, n){
-  if (n > 90) return null;                       // ~65s
+  if (n > 200) return null;                      // ~140s (prod queue latency can be ~50s+ before a job even starts)
   if (n > 0) await new Promise(r=>setTimeout(r, 700));
   try {
     const res = await fetch(`${BASE}/api/jobs/${id}`, { headers: HDRS });
