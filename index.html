@@ -146,23 +146,28 @@ function icon(n){ return `<span class="material-symbols-rounded">${n}</span>`; }
 function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
 function clearErr(id){ document.getElementById(id).style.display='none'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-function unwrap(raw){ return raw?.output?.data ?? raw?.output?.output?.data ?? raw?.data ?? raw; }
+// Peel the job wrapper down to the workflow response body.
+// Async job shape: { status, output: { output: { data: {...}, status, headers } } }
+// So the workflow payload we care about lives at job.output.output.data.
+function envelope(raw){ return raw?.output?.output ?? raw?.output ?? raw; }
+function unwrap(raw){ const e = envelope(raw); return (e && typeof e === 'object' && 'data' in e) ? e.data : e; }
+function resumeOf(raw){ const e = envelope(raw); return raw?._resume || e?._resume || e?.data?._resume || null; }
 
 // Turn an absolute steelengine resume URL into a proxied path.
 function proxied(u){ try { const x = new URL(u); return `${BASE}${x.pathname}${x.search}`; } catch { return u; } }
 
 async function poll(id, n){
-  if (n > 60) return null;
+  if (n > 90) return null;                       // ~65s
   if (n > 0) await new Promise(r=>setTimeout(r, 700));
   try {
     const res = await fetch(`${BASE}/api/jobs/${id}`, { headers: HDRS });
     const raw = await res.json();
-    const d = unwrap(raw);
-    if (d?._resume?.apiUrl || d?.status || d?.customer) return d;
-    const st = raw?.status || raw?.execution?.status;
-    if (st === 'completed' || st === 'success') return d?.output ?? d ?? null;
+    const resume = resumeOf(raw);
+    if (resume?.apiUrl) return { ...(unwrap(raw) || {}), _resume: resume };   // paused at HITL
+    const st = raw?.status || raw?.execution?.status;                          // JOB lifecycle status
+    if (st === 'completed' || st === 'success') return unwrap(raw);
     if (st === 'failed' || st === 'error') return { _error: raw?.error || 'Workflow failed' };
-    return poll(id, n+1);
+    return poll(id, n+1);                                                       // queued / running / pending
   } catch { return poll(id, n+1); }
 }
 
