@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PeakActivity Catalog Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,0,0&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink:#0c121f; --prussian:#12192b; --magenta:#d51c57; --magenta-hv:#b91548; --magenta-dn:#8f1038;
+    --bg:var(--ink); --bg3:#19233a; --text:#fff; --text2:rgba(255,255,255,0.72); --text3:rgba(255,255,255,0.48);
+    --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.20); --accent:var(--magenta);
+    --ok-bg:rgba(52,176,76,0.15); --ok-text:#7ee2a0; --ok-bdr:rgba(52,176,76,0.4);
+    --warn-bg:rgba(213,28,87,0.13); --warn-text:#f6b4ca; --warn-bdr:rgba(213,28,87,0.34);
+    --err-bg:rgba(213,28,87,0.16); --err-text:#ffbdd2; --err-bdr:rgba(213,28,87,0.42);
+    --radius:10px; --pill:999px; --shadow:0 18px 52px rgba(0,0,0,0.28);
+  }
+  body { font-family:'DM Sans',-apple-system,'Segoe UI',sans-serif; font-size:14px; color:var(--text); background:var(--bg); min-height:100vh; }
+  .app { max-width:760px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; border-left:.5px solid var(--border); border-right:.5px solid var(--border); box-shadow:var(--shadow); }
+  .material-symbols-rounded { font-family:'Material Symbols Rounded'; font-size:20px; line-height:1; display:inline-flex; vertical-align:middle; flex-shrink:0; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:.5px solid var(--border); position:sticky; top:0; background:rgba(12,18,31,.94); backdrop-filter:blur(18px); z-index:10; }
+  .pa-wordmark { font-size:15px; font-weight:700; } .pa-wordmark .mark-a { color:var(--accent); }
+  .topbar-title { font-size:12px; font-weight:600; color:var(--text2); border-left:.5px solid var(--border2); padding-left:13px; }
+  .page { display:none; flex-direction:column; flex:1; } .page.active { display:flex; }
+  .center { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; text-align:center; }
+  .page-icon { font-size:46px; color:var(--text2); margin-bottom:18px; }
+  .page-heading { font-size:24px; font-weight:700; margin-bottom:8px; }
+  .page-sub { font-size:13px; color:var(--text2); max-width:360px; line-height:1.6; margin-bottom:28px; }
+  .btn { height:46px; padding:0 22px; border:.5px solid var(--border2); border-radius:var(--pill); font-size:14px; font-weight:600; font-family:inherit; background:rgba(255,255,255,.05); color:var(--text); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px; transition:.12s; }
+  .btn:hover { background:var(--bg3); } .btn:disabled { opacity:.42; cursor:not-allowed; }
+  .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .btn.primary:hover:not(:disabled){ background:var(--magenta-hv); }
+  .btn.ok { background:rgba(52,176,76,.9); border-color:transparent; color:#fff; } .btn.ok:hover:not(:disabled){ background:rgba(52,176,76,1); }
+  .btn.danger { background:transparent; border-color:var(--err-bdr); color:var(--err-text); } .btn.danger:hover:not(:disabled){ background:var(--err-bg); }
+  .spinner { width:30px; height:30px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .75s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .body { flex:1; padding:20px; display:flex; flex-direction:column; gap:16px; }
+  .card { background:rgba(255,255,255,.045); border:.5px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .card-head { padding:12px 16px; border-bottom:.5px solid var(--border); font-size:12px; font-weight:600; color:var(--text2); display:flex; align-items:center; gap:7px; }
+  .card-body { padding:14px 16px; }
+  .title { font-size:20px; font-weight:700; margin-bottom:6px; }
+  .meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:4px; }
+  .badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; border:.5px solid transparent; }
+  .badge.ok { background:var(--ok-bg); color:var(--ok-text); border-color:var(--ok-bdr); }
+  .badge.warn { background:var(--warn-bg); color:var(--warn-text); border-color:var(--warn-bdr); }
+  .badge.neutral { background:rgba(255,255,255,.08); color:var(--text2); }
+  .desc { font-size:14px; line-height:1.6; color:var(--text); }
+  .bullets { list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .bullets li { display:flex; gap:9px; font-size:13px; line-height:1.5; }
+  .bullets li .material-symbols-rounded { font-size:16px; color:var(--accent); }
+  .field-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text3); margin-bottom:6px; }
+  input[type=text], textarea { width:100%; border:.5px solid var(--border2); border-radius:8px; padding:10px 13px; font-size:14px; font-family:inherit; background:rgba(255,255,255,.05); color:var(--text); outline:none; }
+  input[type=text]:focus, textarea:focus { border-color:var(--accent); }
+  .actions { display:flex; gap:10px; }
+  .actions .btn { flex:1; }
+  .err { background:var(--err-bg); color:var(--err-text); border:.5px solid var(--err-bdr); border-radius:8px; padding:10px 14px; font-size:13px; display:none; }
+  .result-icon { font-size:52px; margin-bottom:16px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="pa-wordmark">PEAK<span class="mark-a">A</span>CTIVITY</div>
+    <span class="topbar-title">Catalog Review</span>
+  </div>
+
+  <!-- Landing -->
+  <div class="page active" id="p1">
+    <div class="center">
+      <span class="material-symbols-rounded page-icon">inventory_2</span>
+      <div class="page-heading">Product documentation review</div>
+      <div class="page-sub">Run the next pending vendor product through the AI documentation agent, then approve or reject the generated catalog copy.</div>
+      <div class="err" id="p1err"></div>
+      <button class="btn primary" id="startBtn" onclick="processNext()"><span class="material-symbols-rounded">play_arrow</span> Review next product</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="page" id="p2">
+    <div class="center">
+      <div class="spinner"></div>
+      <div class="page-heading" style="margin-top:20px" id="loadingMsg">Running the documentation agent…</div>
+      <div class="page-sub" id="loadingSub">Fetching the product, extracting attributes, generating copy, and running the safety checks.</div>
+    </div>
+  </div>
+
+  <!-- Review (paused) -->
+  <div class="page" id="p3">
+    <div class="body">
+      <div class="card">
+        <div class="card-head"><span class="material-symbols-rounded">rate_review</span> Draft awaiting approval</div>
+        <div class="card-body">
+          <div class="meta" id="rMeta"></div>
+          <div class="title" id="rTitle"></div>
+          <div class="desc" id="rDesc" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="card" id="rBulletsCard">
+        <div class="card-head"><span class="material-symbols-rounded">check_circle</span> Feature bullets</div>
+        <div class="card-body"><ul class="bullets" id="rBullets"></ul></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="material-symbols-rounded">edit_note</span> Reviewer input</div>
+        <div class="card-body">
+          <div class="field-label">Edited title (optional)</div>
+          <input type="text" id="editedTitle" placeholder="Leave blank to keep the generated title" style="margin-bottom:14px" />
+          <div class="field-label">Notes (optional)</div>
+          <textarea id="notes" rows="2" placeholder="Reason for rejection, or a note for the record"></textarea>
+        </div>
+      </div>
+      <div class="err" id="p3err"></div>
+      <div class="actions">
+        <button class="btn danger" id="rejectBtn" onclick="decide('reject')"><span class="material-symbols-rounded">close</span> Reject</button>
+        <button class="btn ok" id="approveBtn" onclick="decide('approve')"><span class="material-symbols-rounded">check</span> Approve &amp; publish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="page" id="p4">
+    <div class="center">
+      <span class="material-symbols-rounded result-icon" id="resIcon"></span>
+      <div class="page-heading" id="resTitle"></div>
+      <div class="page-sub" id="resSub"></div>
+      <button class="btn primary" onclick="resetAll()"><span class="material-symbols-rounded">arrow_forward</span> Review another</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE   = '/api/proxy';
+const WF_ID  = '44da1598-4d4b-482d-97f8-682b96f36493';
+const WS     = 'df24e40c-57f1-456d-9026-b6a3cedc44bd';
+const DRAFTS = 'tbl_c5aad6aab5ed436b871c22988bbc7f9f';
+const EXC    = 'tbl_f80c040e476c4a0ca73db993401fe64b';
+const HDRS   = { 'Content-Type': 'application/json' };
+const ASYNC  = { ...HDRS, 'X-Execution-Mode': 'async' };
+
+let S = { resumeUrl: null };
+
+function goTo(id){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function icon(n){ return `<span class="material-symbols-rounded">${n}</span>`; }
+function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+function clearErr(id){ document.getElementById(id).style.display='none'; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function unwrap(raw){ return raw?.output?.data ?? raw?.output?.output?.data ?? raw?.data ?? raw; }
+
+// Turn an absolute steelengine resume URL into a proxied path.
+function proxied(u){ try { const x = new URL(u); return `${BASE}${x.pathname}${x.search}`; } catch { return u; } }
+
+async function poll(id, n){
+  if (n > 60) return null;
+  if (n > 0) await new Promise(r=>setTimeout(r, 700));
+  try {
+    const res = await fetch(`${BASE}/api/jobs/${id}`, { headers: HDRS });
+    const raw = await res.json();
+    const d = unwrap(raw);
+    if (d?._resume?.apiUrl || d?.status || d?.customer) return d;
+    const st = raw?.status || raw?.execution?.status;
+    if (st === 'completed' || st === 'success') return d?.output ?? d ?? null;
+    if (st === 'failed' || st === 'error') return { _error: raw?.error || 'Workflow failed' };
+    return poll(id, n+1);
+  } catch { return poll(id, n+1); }
+}
+
+async function processNext(){
+  clearErr('p1err');
+  goTo('p2');
+  try {
+    const res = await fetch(`${BASE}/api/workflows/${WF_ID}/execute`, { method:'POST', headers:ASYNC, body:'{}' });
+    const raw = await res.json();
+    if (!res.ok) { goTo('p1'); showErr('p1err', raw?.message || raw?.error || `Error ${res.status}`); return; }
+    const data = raw?.async ? await poll(raw.jobId || raw.executionId, 0) : unwrap(raw);
+    if (!data) { goTo('p1'); showErr('p1err','Timed out waiting for the workflow. Please try again.'); return; }
+    await handleResult(data);
+  } catch(e){ goTo('p1'); showErr('p1err','Network error: '+e.message); }
+}
+
+async function handleResult(data){
+  if (data._error) { goTo('p1'); showErr('p1err', typeof data._error==='string'?data._error:'Workflow failed.'); return; }
+
+  // Paused at the merchandiser review gate
+  if (data?._resume?.apiUrl) {
+    S.resumeUrl = proxied(data._resume.apiUrl);
+    const draft = await fetchLatestDraft();
+    renderReview(draft);
+    return;
+  }
+
+  // Terminal outcomes returned without a pause
+  const status = data?.status || data?.data?.status;
+  if (status === 'flagged_to_exceptions') { const x = await fetchLatestException(); showResult('flag', x); return; }
+  if (status === 'published')      { showResult('published'); return; }
+  if (status === 'needs_revision') { showResult('rejected'); return; }
+  goTo('p1'); showErr('p1err','Unexpected workflow response.');
+}
+
+async function fetchLatestDraft(){
+  try {
+    const q = new URLSearchParams({ workspaceId: WS, filter: JSON.stringify({ status:'pending_review' }), limit:'50', includeTotal:'true' });
+    const res = await fetch(`${BASE}/api/v1/tables/${DRAFTS}/rows?${q}`, { headers: HDRS });
+    const raw = await res.json();
+    const rows = raw?.data?.rows || raw?.rows || [];
+    if (!rows.length) return null;
+    rows.sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
+    return rows[0].data || rows[0];
+  } catch { return null; }
+}
+
+async function fetchLatestException(){
+  try {
+    const q = new URLSearchParams({ workspaceId: WS, limit:'50', includeTotal:'true' });
+    const res = await fetch(`${BASE}/api/v1/tables/${EXC}/rows?${q}`, { headers: HDRS });
+    const raw = await res.json();
+    const rows = raw?.data?.rows || raw?.rows || [];
+    if (!rows.length) return null;
+    rows.sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
+    return rows[0].data || rows[0];
+  } catch { return null; }
+}
+
+function renderReview(d){
+  clearErr('p3err');
+  document.getElementById('editedTitle').value = '';
+  document.getElementById('notes').value = '';
+  if (!d) {
+    document.getElementById('rMeta').innerHTML = '<span class="badge warn">Draft not found</span>';
+    document.getElementById('rTitle').textContent = 'Review required';
+    document.getElementById('rDesc').textContent = 'The workflow is paused for review, but the draft record could not be loaded. You can still approve or reject.';
+    document.getElementById('rBulletsCard').style.display = 'none';
+    goTo('p3'); return;
+  }
+  const conf = d.overall_confidence!=null ? Math.round(parseFloat(d.overall_confidence)*100)+'% confidence' : '';
+  const missing = (d.missing_fields||'').trim();
+  document.getElementById('rMeta').innerHTML =
+    `<span class="badge neutral">${esc(d.category||'Uncategorized')}</span>` +
+    `<span class="badge neutral">${esc(d.sku||'')}</span>` +
+    (d.vendor_id?`<span class="badge neutral">${esc(d.vendor_id)}</span>`:'') +
+    (conf?`<span class="badge ok">${conf}</span>`:'') +
+    (missing?`<span class="badge warn">${icon('warning')} Missing: ${esc(missing)}</span>`:'');
+  document.getElementById('rTitle').textContent = d.title || '(no title)';
+  document.getElementById('rDesc').textContent = d.description || '';
+  const bl = (d.bullets||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const bc = document.getElementById('rBulletsCard');
+  if (bl.length){ bc.style.display=''; document.getElementById('rBullets').innerHTML = bl.map(b=>`<li>${icon('check')}<span>${esc(b.replace(/^[-•]\s*/,''))}</span></li>`).join(''); }
+  else bc.style.display='none';
+  goTo('p3');
+}
+
+async function decide(decision){
+  if (!S.resumeUrl) { showErr('p3err','No active review to resume.'); return; }
+  clearErr('p3err');
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('rejectBtn').disabled = true;
+  const body = { decision, edited_title: document.getElementById('editedTitle').value.trim(), notes: document.getElementById('notes').value.trim() };
+  document.getElementById('loadingMsg').textContent = decision==='approve' ? 'Publishing…' : 'Sending back for revision…';
+  document.getElementById('loadingSub').textContent = 'Resuming the workflow with your decision.';
+  goTo('p2');
+  try {
+    const res = await fetch(S.resumeUrl, { method:'POST', headers:ASYNC, body: JSON.stringify(body) });
+    const raw = await res.json();
+    if (!res.ok) { goTo('p3'); showErr('p3err', raw?.message || `Resume error ${res.status}`); reenable(); return; }
+    const immediate = unwrap(raw);
+    const jobId = raw?.jobId || (raw?.async ? raw?.executionId : null);
+    const data = jobId ? await poll(jobId, 0) : immediate;
+    const status = data?.status || data?.data?.status || immediate?.status;
+    if (status === 'published') showResult('published');
+    else if (status === 'needs_revision') showResult('rejected');
+    else if (status === 'flagged_to_exceptions') { const x = await fetchLatestException(); showResult('flag', x); }
+    else showResult(decision==='approve'?'published':'rejected');
+  } catch(e){ goTo('p3'); showErr('p3err','Network error: '+e.message); reenable(); }
+}
+function reenable(){ document.getElementById('approveBtn').disabled=false; document.getElementById('rejectBtn').disabled=false; }
+
+function showResult(kind, extra){
+  const cfg = {
+    published: ['task_alt', 'var(--ok-text)', 'Published', 'The catalog record was approved and written to the published catalog.'],
+    rejected:  ['undo', 'var(--warn-text)', 'Sent back for revision', 'The draft was rejected and routed to the exceptions queue.'],
+    flag:      ['flag', 'var(--warn-text)', 'Flagged to exceptions', 'The product did not pass the confidence/claims gate and was routed to the exceptions queue.'],
+  }[kind] || ['help','var(--text2)','Done',''];
+  document.getElementById('resIcon').textContent = cfg[0];
+  document.getElementById('resIcon').style.color = cfg[1];
+  document.getElementById('resTitle').textContent = cfg[2];
+  let sub = cfg[3];
+  if (kind==='flag' && extra?.detail) sub += ` Reason: ${extra.detail}`;
+  document.getElementById('resSub').textContent = sub;
+  reenable();
+  goTo('p4');
+}
+
+function resetAll(){ S = { resumeUrl:null }; clearErr('p1err'); goTo('p1'); }
+</script>
+</body>
+</html>
