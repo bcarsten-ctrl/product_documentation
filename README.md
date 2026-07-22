@@ -30,8 +30,11 @@ Four live sections (read directly from the tables via the proxy):
 Env vars: `STEELENGINE_API_KEY` (workspace/personal key — runs the workflows AND reads
 tables; the MCP copilot key does NOT work), `STEELENGINE_BASE_URL` = `https://steelengine.com`.
 
-## Nightly batch (not yet automated)
-The Generator supports batch (first-pending) and on-demand (`target_sku`). A nightly
-"generate all pending at ~3 AM" run still needs to be wired — either an in-workflow loop in
-the Generator, or a small scheduled orchestrator workflow that calls the Generator per
-pending SKU. On-demand generation ("Generate now") works today.
+## Generator = `3eab5df9-e093-4ac1-a3d0-e51e6f0a6cb9`
+The Generator is a single self-contained workflow:
+- **Schedule trigger** (daily 03:00 America/New_York) runs it with no input → it loops over
+  **all** pending `vendor_intake` rows and writes drafts/exceptions directly to the tables.
+- **API/Start** with `{ target_sku }` → processes just that one product (the front-end's
+  "Generate now"). No workflow-to-workflow calls, no API key.
+Internally: `fetch pending → filter (target or all) → loop [ extract → knowledge → copy →
+claims/confidence gate → draft / exception ] → done`.

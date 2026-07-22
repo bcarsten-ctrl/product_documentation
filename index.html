@@ -106,7 +106,7 @@
 
 <script>
 const BASE = '/api/proxy';
-const GENERATOR = 'e814b0bc-10a3-4eff-9ac2-18d710a2b1a2';  // Workflow A
+const GENERATOR = '3eab5df9-e093-4ac1-a3d0-e51e6f0a6cb9';  // Workflow A (scheduled batch + on-demand single)
 const REVIEW    = '96948586-e360-4f81-b5d8-f0b4733934a6';  // Workflow B
 const WS = 'df24e40c-57f1-456d-9026-b6a3cedc44bd';
 const T_INTAKE = 'tbl_516ec71724dc4709b1a9ba987b268f92';
@@ -249,11 +249,8 @@ async function generate(sku){
   if (btn){ btn.disabled=true; btn.innerHTML=`<span class="material-symbols-rounded" style="font-size:16px;animation:spin 1s linear infinite">progress_activity</span> Generating…`; }
   const data = await runWorkflow(GENERATOR, { target_sku: sku }, ASYNC);
   busy.delete('gen-'+sku);
-  const status = data?.status || data?.data?.status;
   if (data?._error) toast('Generation failed: '+data._error);
-  else if (status === 'flagged_to_exceptions') toast(sku+' was flagged to exceptions.');
-  else if (status === 'generated') toast(sku+' generated — now awaiting review.');
-  else toast('Done.');
+  else toast(sku + ' processed — check "Awaiting review" (or "Flagged").');
   await loadAll();
 }
 
