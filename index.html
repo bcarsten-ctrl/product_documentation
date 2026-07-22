@@ -18,19 +18,34 @@
     --radius:10px; --pill:999px; --shadow:0 18px 52px rgba(0,0,0,.28);
   }
   @keyframes spin { to { transform:rotate(360deg); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
   body { font-family:'DM Sans',-apple-system,'Segoe UI',sans-serif; font-size:14px; color:var(--text); background:var(--bg); min-height:100vh; }
-  .app { max-width:860px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; border-left:.5px solid var(--border); border-right:.5px solid var(--border); box-shadow:var(--shadow); }
+  .app { max-width:940px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; border-left:.5px solid var(--border); border-right:.5px solid var(--border); box-shadow:var(--shadow); }
   .material-symbols-rounded { font-family:'Material Symbols Rounded'; font-size:20px; line-height:1; display:inline-flex; vertical-align:middle; flex-shrink:0; }
-  .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:.5px solid var(--border); position:sticky; top:0; background:rgba(12,18,31,.94); backdrop-filter:blur(18px); z-index:10; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:.5px solid var(--border); position:sticky; top:0; background:rgba(12,18,31,.94); backdrop-filter:blur(18px); z-index:20; }
   .pa-wordmark { font-size:15px; font-weight:700; } .pa-wordmark .mark-a { color:var(--accent); }
   .topbar-title { font-size:12px; font-weight:600; color:var(--text2); border-left:.5px solid var(--border2); padding-left:13px; }
+  .topbar-spacer { flex:1; }
   .refresh { background:none; border:none; color:var(--text2); cursor:pointer; display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:12px; font-weight:600; }
   .refresh:hover { color:var(--text); }
-  .content { flex:1; padding:22px; display:flex; flex-direction:column; gap:30px; }
-  .section-head { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
-  .section-head h2 { font-size:15px; font-weight:700; } .section-head .material-symbols-rounded { color:var(--accent); font-size:19px; }
-  .count { font-size:12px; font-weight:600; color:var(--text2); background:rgba(255,255,255,.07); padding:2px 9px; border-radius:20px; }
-  .muted { font-size:13px; color:var(--text2); padding:12px 2px; }
+
+  /* tabs */
+  .tabs { display:flex; gap:2px; padding:0 14px; border-bottom:.5px solid var(--border); position:sticky; top:57px; background:rgba(12,18,31,.94); backdrop-filter:blur(18px); z-index:19; overflow-x:auto; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { position:relative; background:none; border:none; color:var(--text2); cursor:pointer; font:inherit; font-size:13px; font-weight:600; padding:14px 14px 13px; display:inline-flex; align-items:center; gap:7px; white-space:nowrap; transition:color .12s; }
+  .tab .material-symbols-rounded { font-size:18px; }
+  .tab:hover { color:var(--text); }
+  .tab.active { color:var(--text); }
+  .tab.active::after { content:""; position:absolute; left:8px; right:8px; bottom:-.5px; height:2.5px; background:var(--accent); border-radius:3px 3px 0 0; }
+  .tab-count { font-size:11px; font-weight:700; color:var(--text2); background:rgba(255,255,255,.09); padding:1px 7px; border-radius:20px; min-width:20px; text-align:center; }
+  .tab.active .tab-count { background:var(--accent); color:#fff; }
+
+  .content { flex:1; padding:24px 22px; }
+  .tab-panel { display:none; animation:fadeUp .22s ease both; }
+  .tab-panel.active { display:block; }
+  .panel-intro { font-size:13px; color:var(--text2); line-height:1.55; margin-bottom:16px; max-width:640px; }
+  .muted { font-size:13px; color:var(--text2); padding:24px 2px; text-align:center; }
+
   .badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; border:.5px solid transparent; }
   .badge.ok { background:var(--ok-bg); color:var(--ok-text); border-color:var(--ok-bdr); }
   .badge.warn { background:var(--warn-bg); color:var(--warn-text); border-color:var(--warn-bdr); }
@@ -41,10 +56,11 @@
   .btn.ok { background:rgba(52,176,76,.9); border-color:transparent; color:#fff; } .btn.ok:hover:not(:disabled){ background:rgba(52,176,76,1); }
   .btn.danger { background:transparent; border-color:var(--warn-bdr); color:var(--warn-text); } .btn.danger:hover:not(:disabled){ background:var(--warn-bg); }
 
-  /* pending-generation row */
+  /* generic list row (generation / flagged) */
   .row-card { display:flex; align-items:center; gap:14px; padding:13px 16px; border:.5px solid var(--border); border-radius:var(--radius); background:rgba(255,255,255,.045); margin-bottom:8px; }
   .row-ic { width:38px; height:38px; border-radius:9px; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .row-ic .material-symbols-rounded { color:var(--text2); font-size:19px; }
+  .row-card.flagged .row-ic { background:var(--warn-bg); } .row-card.flagged .row-ic .material-symbols-rounded { color:var(--warn-text); }
   .row-main { flex:1; min-width:0; }
   .row-name { font-size:13.5px; font-weight:600; margin-bottom:3px; }
   .row-sub { font-size:12px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -61,14 +77,34 @@
   .draft input[type=text]:focus { border-color:var(--accent); }
   .draft .status-msg { font-size:12px; color:var(--text2); display:none; }
 
-  .cat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
-  .cat-card { border:.5px solid var(--border); border-radius:var(--radius); background:rgba(255,255,255,.045); padding:15px 16px; }
-  .cat-title { font-size:14px; font-weight:700; margin-bottom:6px; }
-  .cat-desc { font-size:12px; color:var(--text2); line-height:1.5; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
-  .cat-bullets { list-style:none; display:flex; flex-direction:column; gap:4px; }
-  .cat-bullets li { font-size:11.5px; color:var(--text2); display:flex; gap:6px; line-height:1.4; } .cat-bullets li .material-symbols-rounded { font-size:14px; color:var(--ok-text); }
+  /* published catalog — hero + rich cards */
+  .cat-hero { position:relative; overflow:hidden; border:.5px solid var(--border); border-radius:16px; padding:22px 24px; margin-bottom:20px;
+    background:radial-gradient(120% 140% at 0% 0%, rgba(213,28,87,.22), transparent 55%), linear-gradient(135deg, #1a2336, #12192b); }
+  .cat-hero h2 { font-size:20px; font-weight:700; display:flex; align-items:center; gap:9px; margin-bottom:5px; }
+  .cat-hero h2 .material-symbols-rounded { color:var(--ok-text); font-size:24px; }
+  .cat-hero p { font-size:13px; color:var(--text2); }
+  .cat-hero .hero-stat { position:absolute; top:22px; right:24px; text-align:right; }
+  .cat-hero .hero-num { font-size:30px; font-weight:700; line-height:1; }
+  .cat-hero .hero-lbl { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.06em; }
+
+  .cat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px; }
+  .cat-card { position:relative; border:.5px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); padding:0; overflow:hidden; transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease; display:flex; flex-direction:column; }
+  .cat-card:hover { transform:translateY(-3px); box-shadow:0 16px 34px rgba(0,0,0,.34); border-color:var(--border2); }
+  .cat-card .accent { height:4px; background:linear-gradient(90deg, var(--magenta), #ff6aa0); }
+  .cat-card .body { padding:16px 17px 17px; display:flex; flex-direction:column; flex:1; }
+  .cat-card .chips { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .cat-price { margin-left:auto; font-size:13px; font-weight:700; color:var(--ok-text); background:var(--ok-bg); border:.5px solid var(--ok-bdr); padding:2px 10px; border-radius:20px; }
+  .cat-title { font-size:15.5px; font-weight:700; line-height:1.3; margin-bottom:7px; }
+  .cat-desc { font-size:12px; color:var(--text2); line-height:1.55; margin-bottom:12px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .cat-bullets { list-style:none; display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+  .cat-bullets li { font-size:11.5px; color:var(--text2); display:flex; gap:6px; line-height:1.4; } .cat-bullets li .material-symbols-rounded { font-size:14px; color:var(--ok-text); margin-top:1px; }
+  .cat-foot { margin-top:auto; padding-top:12px; border-top:.5px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .cat-live { font-size:11px; font-weight:600; color:var(--ok-text); display:inline-flex; align-items:center; gap:5px; }
+  .cat-live .dot { width:7px; height:7px; border-radius:50%; background:var(--ok-text); box-shadow:0 0 0 3px rgba(52,176,76,.22); }
+  .cat-sku { font-size:11px; font-weight:600; color:var(--text3); font-variant-numeric:tabular-nums; }
+
   .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--bg3); border:.5px solid var(--border2); color:var(--text); padding:11px 18px; border-radius:var(--pill); font-size:13px; font-weight:600; box-shadow:var(--shadow); display:none; align-items:center; gap:8px; z-index:80; }
-  @media (max-width:560px){ .app { border:none; } .content { padding:16px; } }
+  @media (max-width:560px){ .app { border:none; } .content { padding:18px 16px; } .tab span.lbl { display:none; } .cat-hero .hero-stat { display:none; } }
 </style>
 </head>
 <body>
@@ -76,30 +112,36 @@
   <div class="topbar">
     <div class="pa-wordmark">PEAK<span class="mark-a">A</span>CTIVITY</div>
     <span class="topbar-title">Catalog Review</span>
+    <span class="topbar-spacer"></span>
     <button class="refresh" onclick="loadAll()"><span class="material-symbols-rounded" style="font-size:16px">refresh</span> Refresh</button>
   </div>
 
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="review" onclick="switchTab('review')"><span class="material-symbols-rounded">rate_review</span><span class="lbl">Awaiting review</span><span class="tab-count" id="reviewCount">–</span></button>
+    <button class="tab" data-tab="generation" onclick="switchTab('generation')"><span class="material-symbols-rounded">schedule</span><span class="lbl">Awaiting generation</span><span class="tab-count" id="pendingCount">–</span></button>
+    <button class="tab" data-tab="flagged" onclick="switchTab('flagged')"><span class="material-symbols-rounded">flag</span><span class="lbl">Flagged</span><span class="tab-count" id="excCount">–</span></button>
+    <button class="tab" data-tab="published" onclick="switchTab('published')"><span class="material-symbols-rounded">verified</span><span class="lbl">Published catalog</span><span class="tab-count" id="pubCount">–</span></button>
+  </nav>
+
   <div class="content">
-    <div>
-      <div class="section-head"><span class="material-symbols-rounded">rate_review</span><h2>Awaiting review</h2><span class="count" id="reviewCount">–</span></div>
+    <section class="tab-panel active" data-panel="review">
+      <div class="panel-intro">Generated drafts awaiting a human decision. Approve to publish to the catalog, or reject to send it back to exceptions.</div>
       <div id="reviewList"><div class="muted">Loading…</div></div>
-    </div>
+    </section>
 
-    <div>
-      <div class="section-head"><span class="material-symbols-rounded">schedule</span><h2>Awaiting generation</h2><span class="count" id="pendingCount">–</span></div>
-      <div class="muted" style="padding-top:0;margin-bottom:8px">Drafts are generated automatically each night. Use <b>Generate now</b> to process a product on demand (~1 min).</div>
+    <section class="tab-panel" data-panel="generation">
+      <div class="panel-intro">Drafts are generated automatically each night at 3&nbsp;AM ET. Use <b>Generate now</b> to process a product on demand (~1&nbsp;min).</div>
       <div id="pendingList"><div class="muted">Loading…</div></div>
-    </div>
+    </section>
 
-    <div>
-      <div class="section-head"><span class="material-symbols-rounded">flag</span><h2>Flagged to exceptions</h2><span class="count" id="excCount">–</span></div>
+    <section class="tab-panel" data-panel="flagged">
+      <div class="panel-intro">Products the agent could not confidently document — low confidence, unsupported claims, or missing required fields. These need attention before they can be published.</div>
       <div id="excList"><div class="muted">Loading…</div></div>
-    </div>
+    </section>
 
-    <div>
-      <div class="section-head"><span class="material-symbols-rounded">verified</span><h2>Published catalog</h2><span class="count" id="pubCount">–</span></div>
+    <section class="tab-panel" data-panel="published">
       <div id="catalog"><div class="muted">Loading…</div></div>
-    </div>
+    </section>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -118,12 +160,26 @@ const ASYNC = { ...HDRS, 'X-Execution-Mode':'async' };
 
 const busy = new Set();
 
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.dataset.panel===name));
+}
 function icon(n,sz){ return `<span class="material-symbols-rounded"${sz?` style="font-size:${sz}px"`:''}>${n}</span>`; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function bulletList(str){ return String(str||'').split('\n').map(s=>s.trim().replace(/^[-•]\s*/,'')).filter(Boolean); }
 function envelope(raw){ return raw?.output?.output ?? raw?.output ?? raw; }
 function unwrap(raw){ const e=envelope(raw); return (e && typeof e==='object' && 'data' in e) ? e.data : e; }
 function toast(msg){ const t=document.getElementById('toast'); t.innerHTML=icon('info',16)+' '+esc(msg); t.style.display='flex'; clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none',3200); }
+
+// pull a "$xx" price out of the stored attributes_json, if present
+function priceOf(row){
+  try {
+    const arr = JSON.parse(row.attributes_json||'[]');
+    const p = arr.find(a=>/price/i.test(a.name||''));
+    if (p && p.value!=null) { const v=String(p.value).trim(); return /^\$/.test(v)?v:('$'+v.replace(/^\$/,'')); }
+  } catch {}
+  return '';
+}
 
 async function tableRows(tableId, filter){
   const q = new URLSearchParams({ workspaceId:WS, limit:'100', includeTotal:'true' });
@@ -204,12 +260,14 @@ function renderPending(rows){
   if (!rows.length){ el.innerHTML='<div class="muted">No products awaiting generation.</div>'; return; }
   el.innerHTML = rows.map(r => {
     const sku=esc(r.sku);
+    const hasFile = r.file_url ? `<span class="badge neutral">${icon('description',13)} file</span>` : '';
     return `<div class="row-card" id="pend-${sku}">
       <div class="row-ic">${icon('inventory_2')}</div>
       <div class="row-main">
         <div class="row-name">${esc(r.category||'Product')} · ${esc(r.vendor_id||'')}</div>
         <div class="row-sub">${esc(r.source_text||'')}</div>
       </div>
+      ${hasFile}
       <span class="badge neutral">${sku}</span>
       <button class="btn primary" id="gen-${sku}" onclick="generate('${sku}')">${icon('auto_awesome',17)} Generate now</button>
     </div>`;
@@ -220,7 +278,7 @@ function renderExceptions(rows){
   const el=document.getElementById('excList'); el.dataset.loaded='1';
   document.getElementById('excCount').textContent = rows.length;
   if (!rows.length){ el.innerHTML='<div class="muted">No flagged products.</div>'; return; }
-  el.innerHTML = rows.map(r => `<div class="row-card">
+  el.innerHTML = rows.map(r => `<div class="row-card flagged">
     <div class="row-ic">${icon('flag')}</div>
     <div class="row-main">
       <div class="row-name">${esc(r.category||'Product')} · ${esc(r.vendor_id||'')}</div>
@@ -234,13 +292,31 @@ function renderExceptions(rows){
 function renderCatalog(rows){
   const el=document.getElementById('catalog'); el.dataset.loaded='1';
   document.getElementById('pubCount').textContent = rows.length;
-  if (!rows.length){ el.innerHTML='<div class="muted">No published products yet.</div>'; return; }
-  el.innerHTML = `<div class="cat-grid">${rows.map(r=>`<div class="cat-card">
-    <div class="meta" style="display:flex;gap:6px;margin-bottom:8px"><span class="badge neutral">${esc(r.category||'')}</span>${r.vendor_id?`<span class="badge neutral">${esc(r.vendor_id)}</span>`:''}</div>
-    <div class="cat-title">${esc(r.title||'(untitled)')}</div>
-    <div class="cat-desc">${esc(r.description||'')}</div>
-    <ul class="cat-bullets">${bulletList(r.bullets).slice(0,4).map(b=>`<li>${icon('check',14)}<span>${esc(b)}</span></li>`).join('')}</ul>
-  </div>`).join('')}</div>`;
+  const hero = `<div class="cat-hero">
+    <h2>${icon('verified')} Published catalog</h2>
+    <p>Human-approved product documentation, live in the catalog.</p>
+    <div class="hero-stat"><div class="hero-num">${rows.length}</div><div class="hero-lbl">Live products</div></div>
+  </div>`;
+  if (!rows.length){ el.innerHTML = hero + '<div class="muted">No published products yet. Approve a draft to see it here.</div>'; return; }
+  el.innerHTML = hero + `<div class="cat-grid">${rows.map(r=>{
+    const price = priceOf(r);
+    return `<div class="cat-card">
+    <div class="accent"></div>
+    <div class="body">
+      <div class="chips">
+        ${r.category?`<span class="badge neutral">${esc(r.category)}</span>`:''}
+        ${r.vendor_id?`<span class="badge neutral">${esc(r.vendor_id)}</span>`:''}
+        ${price?`<span class="cat-price">${esc(price)}</span>`:''}
+      </div>
+      <div class="cat-title">${esc(r.title||'(untitled)')}</div>
+      <div class="cat-desc">${esc(r.description||'')}</div>
+      <ul class="cat-bullets">${bulletList(r.bullets).slice(0,4).map(b=>`<li>${icon('check',14)}<span>${esc(b)}</span></li>`).join('')}</ul>
+      <div class="cat-foot">
+        <span class="cat-live"><span class="dot"></span>Live</span>
+        <span class="cat-sku">${esc(r.sku||'')}</span>
+      </div>
+    </div>
+  </div>`;}).join('')}</div>`;
 }
 
 async function generate(sku){
@@ -250,7 +326,7 @@ async function generate(sku){
   const data = await runWorkflow(GENERATOR, { target_sku: sku }, ASYNC);
   busy.delete('gen-'+sku);
   if (data?._error) toast('Generation failed: '+data._error);
-  else toast(sku + ' processed — check "Awaiting review" (or "Flagged").');
+  else { toast(sku + ' processed — see "Awaiting review" (or "Flagged").'); switchTab('review'); }
   await loadAll();
 }
 
