@@ -294,7 +294,6 @@ function renderCatalog(rows){
   document.getElementById('pubCount').textContent = rows.length;
   const hero = `<div class="cat-hero">
     <h2>${icon('verified')} Published catalog</h2>
-    <p>Human-approved product documentation, live in the catalog.</p>
     <div class="hero-stat"><div class="hero-num">${rows.length}</div><div class="hero-lbl">Live products</div></div>
   </div>`;
   if (!rows.length){ el.innerHTML = hero + '<div class="muted">No published products yet. Approve a draft to see it here.</div>'; return; }
